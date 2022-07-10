@@ -1,0 +1,6 @@
+---
+- name: Commenting a line using the regualr expressions in Ansible.
+  replace:
+    path: /etc/apt/sources.list
+    regexp: '(^[^#].*arvancloud.*)'
+    replace: '#\1'

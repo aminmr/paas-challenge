@@ -1,0 +1,21 @@
+---
+
+## Update Redhat-base OS packages
+- name: Upgrade all packages, excluding kernel
+  yum:
+    name: '*'
+    state: latest
+    exclude: kernel*
+  when: ansible_os_family == "RedHat"
+
+## Upgrade debian-base OS packages
+- name: Update repositories cache
+  apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+  when: ansible_os_family == "Debian"

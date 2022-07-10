@@ -1,0 +1,9 @@
+---
+- name: Config netplan and add the gateway to it
+  ansible.builtin.template:
+    src: "50-cloud-init.j2"
+    dest: "/etc/netplan/50-cloud-init.yaml"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Apply netplan

@@ -1,0 +1,23 @@
+---
+# Default theme
+oh_my_zsh_theme: bira
+
+# Default plugins
+oh_my_zsh_plugins:
+  - git
+
+# Wether to install by default for all specified users.
+# May be overridden by `oh_my_zsh_install` under each user.
+oh_my_zsh_install: yes
+
+users:
+  - username: ubuntu
+    oh_my_zsh:
+      theme: bira
+      plugins:
+        - git
+  - username: root
+    oh_my_zsh:
+      theme: bira
+      plugins:
+        - git

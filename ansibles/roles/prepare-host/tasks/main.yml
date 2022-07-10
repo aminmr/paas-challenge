@@ -1,0 +1,12 @@
+---
+- name: apply the default gateway to nodes
+  ansible.builtin.include_tasks: add-gateway.yml
+
+- name: Remove ArvanCloud mirrors
+  ansible.builtin.include_tasks: arvan-mirror.yml
+
+- name: Update the OS 
+  ansible.builtin.include_tasks: update-os.yml
+
+
+

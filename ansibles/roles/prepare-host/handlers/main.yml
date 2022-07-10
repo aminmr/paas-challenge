@@ -1,0 +1,7 @@
+---
+- name: Apply netplan
+  command: sudo netplan apply
+  register: netplan
+  failed_when: current_version.rc > 0
+  async: 45
+  poll: 0
