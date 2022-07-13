@@ -23,6 +23,8 @@ The other role of gateways are:
 - Loadbalancing requests between the kubernetes master nodes.
 - Loadbalancing requests from the user to the cluster.
 
+#### Implementation
+
 ### ETCD
 
 #### ETCD Hardware requirement
@@ -33,11 +35,17 @@ The other role of gateways are:
 
 
 
-The cluster has been initialized with three nodes and TLS authentication. All certificates has been issued by `OpenSSL`
+The cluster has been initialized with three nodes and TLS authentication. All certificates has been issued by `OpenSSL`.
+
+#### Implementation
+
+
 
 ### ETCD disaster recovery
 
 ### K8S cluster
+
+#### Implementation
 
 ### Challenges
 
@@ -50,6 +58,24 @@ At first, I wanted to have a `virtual private IP` which can be handle by the ope
 ##### What's wrong?
 
 All the configuration was successfully done but at the last part the floating ip that has been assinged to the virtual ip port had no ping and connection.
+
+#### ETCD
+
+One of the most hard challenges I have was the etcd TLS authentication. I tried to issued the certs with `openSSL` but the certs had not worked. Related to the [github issue](https://github.com/etcd-io/etcd/issues/8603) these problems caused because of the lack of good etcd documentation.
+
+After many research and tests I figured out the problems:
+
+- **Key_usage:** I need to add the `keyEncipherment` key_usage to the server csr. Related to the serveruser website the keyEncipherment is:
+
+  > Certificate may be used to encrypt a symmetric key which is then transferred to the target.
+  >
+  > Target decrypts key, subsequently using it to encrypt & decrypt data between the entities
+
+- **Extended_key_usage:** This flag is additional restrictions need to add to the certs. For server cert should be `serverAuth` , client certs should be `clientAuth` and for peer certs should be both
+
+- **Hostname is SAN:** There is a section in csr which you can specify the hostname and IPs. I just used the IP variable.
+
+Thanks to [this](https://medium.com/nirman-tech-blog/setting-up-etcd-cluster-with-tls-authentication-enabled-49c44e4151bb) article which helps me a lot to troubleshoot.
 
 ### Refreneces
 
