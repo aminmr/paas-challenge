@@ -53,7 +53,7 @@ The cluster has been initialized with three nodes and TLS authentication. All ce
 
 At first, I wanted to have a `virtual private IP` which can be handle by the openstack. And I wanted to assign a `floating IP` to the virtual ip port to have the internet via this port. But Because of the  [bug](https://bugzilla.redhat.com/show_bug.cgi?id=1707241) in the OVN  module of openstack my scenario has failed. So I had to assing two fixed public IP to each nodes and assing a `virtual public IP` to my gateway nodes to  handle the HA and config the keepalived.
 
-![image-20220714010525364](/home/amin/paas-challenge/pictures/ovn-bug.png)
+![image-20220714010525364](./pictures/ovn-bug.png)
 
 ##### What's wrong?
 
