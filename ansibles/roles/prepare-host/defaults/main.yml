@@ -1,2 +1,2 @@
 default_gateway_ip_address: 192.168.0.5
-shecan_ip: 185.220.224.113
+shecan_ip: 8.8.8.8

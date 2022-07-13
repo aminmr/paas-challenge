@@ -8,7 +8,7 @@ network:
     ethernets:
         eth0:
             addresses:
-            - {{ ansible_default_ipv4.address  }}/24
+            - {{ ansible_eth0.ipv4.address  }}/24
             routes:
             - to: default
               via: {{ default_gateway_ip_address }}
@@ -16,6 +16,6 @@ network:
                 addresses:
                 - {{shecan_ip}}
             match:
-                macaddress: {{ ansible_default_ipv4.macaddress }}
+                macaddress: {{ ansible_eth0.macaddress }}
             mtu: 1442
             set-name: eth0
