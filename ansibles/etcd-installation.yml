@@ -1,0 +1,21 @@
+---
+- hosts: etcd # This is only for getting the etcd facts to use it in node controller
+- hosts: ansible-master
+  gather_facts: true
+  become: yes
+  tasks:
+  - include_role:
+      name: etcd-implementation
+      tasks_from: server-cert-create.yml
+  - include_role:
+      name: etcd-implementation
+      tasks_from: peer-cert-create.yml
+
+- hosts: etcd
+  gather_facts: true
+  become: yes
+  become_user: root
+  roles:
+    - role: etcd-implementation
+      tags:
+        - etcd-install
