@@ -1,0 +1,46 @@
+---
+- name: "Generate private key for each member"
+  openssl_privatekey:
+    path: /home/ubuntu/artifacts/{{item}}-peer.key
+    type: RSA
+    size: 4096
+    state: present
+    force: True
+  with_items: "{{ groups['etcd'] }}"
+
+- name: "Generate CSR for each member"
+  openssl_csr:
+    path: /home/ubuntu/artifacts/{{item}}-peer.csr
+    privatekey_path: /home/ubuntu/artifacts/{{item}}-peer.key
+    common_name: "{{item}}"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    extended_key_usage:
+      - serverAuth
+      - clientAuth
+    subject_alt_name:
+      - DNS:{{hostvars[item]['ansible_hostname']}}
+        #      - IP:192.168.0.10
+        #      - IP:192.168.0.11
+        #      - IP:192.168.0.12
+      - IP:{{ hostvars[item]['ansible_eth0']['ipv4']['address'] }}
+      - IP:127.0.0.1
+    force: True
+  with_items: "{{ groups['etcd'] }}"
+
+- name: "Generate an `etcd` member certificate signed with our own CA certificate"
+  openssl_certificate:
+    path: /home/ubuntu/artifacts/{{item}}-peer.crt
+    csr_path: /home/ubuntu/artifacts/{{item}}-peer.csr
+    ownca_path: /home/ubuntu/artifacts/ca.crt
+    ownca_privatekey_path: /home/ubuntu/artifacts/ca.key
+    provider: ownca
+    force: True
+  with_items: "{{ groups['etcd'] }}"
+
+- name: "Set the readble Permission for key files"
+  file:
+    path: /home/ubuntu/artifacts/{{item}}-peer.key
+    mode: o+r
+  with_items: "{{ groups['etcd'] }}"

@@ -1,0 +1,11 @@
+- name: Install etcd and etcdctl from binaries
+  ansible.builtin.include_tasks: install-etcd.yml
+
+- name: Create all etcd needed directory + copy etcd.conf
+  ansible.builtin.include_tasks: dir-create.yml
+
+- name: Copy all certs to the nodes
+  ansible.builtin.include_tasks: cert-copy.yml
+
+- name: Create etcd service unit + start and enable service
+  ansible.builtin.include_tasks: etcd-unit-file.yml

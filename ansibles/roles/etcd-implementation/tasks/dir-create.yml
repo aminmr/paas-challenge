@@ -1,0 +1,28 @@
+---
+- name: "Create a data directory"
+  file:
+    path: /var/lib/etcd/{{ inventory_hostname }}.etcd
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: "Create directory for etcd configuration"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - /etc/etcd
+    - /etc/etcd/ssl
+
+- name: "Create configuration file for etcd"
+  template:
+    src: etcd.conf.j2
+    dest: /etc/etcd/etcd.conf.yaml
+    owner: root
+    group: root
+    mode: 0600
+

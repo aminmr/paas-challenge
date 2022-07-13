@@ -1,0 +1,6 @@
+---
+- name: "Restart the etcd service"
+  ansible.builtin.systemd:
+    name: etcd
+    state: restarted
+

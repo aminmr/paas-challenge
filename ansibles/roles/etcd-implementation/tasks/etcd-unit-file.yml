@@ -1,0 +1,27 @@
+---
+- name: "Create a etcd service"
+  copy:
+    src: files/etcd.service
+    remote_src: False
+    dest: /etc/systemd/system/etcd.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Enable the etcd service"
+  ansible.builtin.systemd:
+    name: etcd
+    enabled: yes
+    masked: no
+  
+- name: "Start the etcd service"
+  ansible.builtin.systemd:
+    name: etcd
+    state: started
+
+- name: "Restart the etcd service"
+  ansible.builtin.systemd:
+    name: etcd
+    state: restarted
+
+

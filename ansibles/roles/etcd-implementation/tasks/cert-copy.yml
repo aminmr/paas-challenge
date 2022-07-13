@@ -1,0 +1,47 @@
+---
+- name: "Copy over the CA certificate"
+  copy:
+    src: /home/ubuntu/artifacts/ca.crt
+    remote_src: false
+    dest: /etc/etcd/ssl/ca.crt
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Copy over the `etcd-server` member certificate"
+  copy:
+    src: /home/ubuntu/artifacts/{{inventory_hostname}}-server.crt
+    remote_src: false
+    dest: /etc/etcd/ssl/server.crt
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Copy over the `etcd-peer` member certificate"
+  copy:
+    src: /home/ubuntu/artifacts/{{inventory_hostname}}-peer.crt
+    remote_src: false
+    dest: /etc/etcd/ssl/peer.crt
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Copy over the `etcd-server` member key"
+  copy:
+    src: /home/ubuntu/artifacts/{{inventory_hostname}}-server.key
+    remote_src: false
+    dest: /etc/etcd/ssl/server.key
+    owner: root
+    group: root
+    mode: 0600
+
+- name: "Copy over the `etcd-peer` member key"
+  copy:
+    src: /home/ubuntu/artifacts/{{inventory_hostname}}-peer.key
+    remote_src: false
+    dest: /etc/etcd/ssl/peer.key
+    owner: root
+    group: root
+    mode: 0600
+
+
