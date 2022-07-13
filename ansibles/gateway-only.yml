@@ -1,0 +1,9 @@
+---
+- hosts: etcd
+  gather_facts: true
+  become: true
+  tasks:
+  - include_role:
+      name: prepare-host
+      tasks_from: add-gateway
+
