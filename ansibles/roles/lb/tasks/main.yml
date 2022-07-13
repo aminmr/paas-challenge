@@ -1,0 +1,5 @@
+---
+- name: Deploy haproxy
+  include_tasks: haproxy.yml
+- name: Deploy keepalived
+  include_tasks: keepalived.yml

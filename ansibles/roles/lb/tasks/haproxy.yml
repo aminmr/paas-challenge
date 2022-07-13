@@ -1,0 +1,18 @@
+---
+- name: Install haproxy and other packages
+  apt:
+    name: haproxy
+    state: present
+    update_cache: true
+  notify: Restart Haproxy
+
+    #- name: Configure gateway-in haproxy
+    #  template:
+    #    src: templates/haproxy.conf.j2
+    #    dest: /etc/haproxy/haproxy.cfg
+    #    owner: root
+    #    group: root
+    #    mode: '0644'
+    #  notify: Reload Haproxy
+    #
+    #

@@ -1,0 +1,13 @@
+vrrp_instance {{ inventory_hostname }} {
+    state {{ keepalived_instances[inventory_hostname].state }}
+    interface {{ keepalived_instances[inventory_hostname].interface }}
+    virtual_router_id 1
+    priority {{keepalived_instances[inventory_hostname].priority }}
+    authentication {
+        auth_type PASS
+        auth_pass {{ keepalived_password }}
+    }
+    virtual_ipaddress {
+        {{ virtual_ip }} dev {{ keepalived_instances[inventory_hostname].interface }}
+    }
+}
