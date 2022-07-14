@@ -83,7 +83,7 @@ In this scenario the cluster is functional and can write and read the requests. 
    etcdctl  --endpoints=https://192.168.0.10:2379,https://192.168.0.11:2379,https://192.168.0.12:2379 --cert=/etc/etcd/ssl/peer.crt --key=/etc/etcd/ssl/peer.key --cacert=/etc/etcd/ssl/ca.crt member add etcd-3 --peer-urls=https://192.168.0.12:2380
    ```
 
-4. If you are doing this process on a failure node which only lost the data dir you need only change the `/etc/etcd/etcd.conf.yaml` and set the `initial-cluster-state: new`. But if you add replace node, after installing the etcd and etcdctl you need to add the following conf to `/etc/etcd/etcd.conf.yaml`:
+4. If you are doing this process on a failure node which only lost the data dir you need only change the `/etc/etcd/etcd.conf.yaml` and set the `initial-cluster-state:exisiting`. But if you add replace node, after installing the etcd and etcdctl you need to add the following conf to `/etc/etcd/etcd.conf.yaml`:
 
    ```yaml
    data-dir: /var/lib/etcd/etcd-1.etcd
@@ -214,7 +214,9 @@ systemctl start etcd.service
 
 9. Repeat this process for other members.
 
-   
+**Note:** If your nodes are damaged and you have to use new nodes, you have to install etcd and etcdctl before the above proccess.
+
+#### Automation
 
 ## K8S cluster
 
