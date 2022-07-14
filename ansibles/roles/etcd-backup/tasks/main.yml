@@ -1,0 +1,2 @@
+- name: Backup the etcd and create snapshot
+  ansible.builtin.include_tasks: etcd-backup.yml

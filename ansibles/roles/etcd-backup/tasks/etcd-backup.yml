@@ -1,13 +1,13 @@
 ---
 - name: Create the snapshot backup directory
   file:
-    path: {{ snapshot_dir }}
+    path: "{{ snapshot_dir }}"
     state: directory
 
 - name: Create backup script on remote node
   template:
     src: 'templates/etcd-backup.sh.j2'
-    dst: '/root/etcd-backup.shi'
+    dest: '/root/etcd-backup.sh'
 
 
 - name: set the permission for execute the script
@@ -18,4 +18,9 @@
     mode: '0755'
 
 - name: execute the script on the etcd node
-  script: /root/etcd-backup.sh
+  shell: /root/etcd-backup.sh
+    #  register: backup
+
+    #- debug:
+    #    msg: "{{backup.rc}}"
+    #  failed_when: backup.rc != 0
