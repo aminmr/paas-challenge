@@ -1,5 +1,5 @@
 ---
-- hosts: etcd
+- hosts: k8s
   gather_facts: true
   become: true
   roles:
