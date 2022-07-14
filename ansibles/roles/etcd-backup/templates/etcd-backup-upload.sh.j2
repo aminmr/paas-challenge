@@ -1,0 +1,13 @@
+#!/bin/bash
+
+s3cmd put {{ snapshot_dir }}etcd-snapshot-{{ date }}.db s3://{{s3_bucket_name}}/etcd-snapshots/etcd-snapshot-{{ date }}.db
+
+s3cmd_upload=$?
+
+if [[ $s3cmd_upload == 0 ]] 
+then
+	echo "The upload has been successfully completed!"
+else
+	echo "The upload has been failed!"
+	exit 1
+fi

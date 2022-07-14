@@ -1,0 +1,37 @@
+---
+- name: install python and its dependencies
+  apt:
+    pkg:
+    - python
+    - python3
+    - python-dateutil 
+    - python3-pip
+
+
+- name: install the s3cmd via the pip3
+  pip:
+    name: git+https://github.com/s3tools/s3cmd.git@v2.2.0
+
+
+- name:
+  template:
+    src: 'templates/s3cfg.j2'
+    dest: '/root/.s3cfg'
+
+- name:
+  template:
+    src: 'templates/etcd-backup-upload.sh.j2'
+    dest: '/root/etcd-backup-upload.sh'
+
+
+- name: Set permission for the script
+  file:
+    path: "/root/etcd-backup-upload.sh"
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: execute the script on the etcd node
+  shell: /root/etcd-backup-upload.sh
+  register: backup
+  failed_when: backup.rc != 0

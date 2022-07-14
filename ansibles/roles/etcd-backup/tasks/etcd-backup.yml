@@ -19,8 +19,5 @@
 
 - name: execute the script on the etcd node
   shell: /root/etcd-backup.sh
-    #  register: backup
-
-    #- debug:
-    #    msg: "{{backup.rc}}"
-    #  failed_when: backup.rc != 0
+  register: backup
+  failed_when: backup.rc != 0

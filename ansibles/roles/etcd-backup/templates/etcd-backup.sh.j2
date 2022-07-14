@@ -2,7 +2,7 @@
 
 export PATH=$PATH:/opt/etcd/bin
 export ETCDCTL_API=3
-etcdctl --endpoints https://{{ ansible_eth0.ipv4.address }}:2379 --cert={{ cert_path }}  --key={{ key_path }}  --cacert={{ ca_path }} snapshot save {{ snapshot_dir }}etcd-snapshot-$(date +%Y%m%d%H%M).db
+etcdctl --endpoints https://{{ ansible_eth0.ipv4.address }}:2379 --cert={{ cert_path }}  --key={{ key_path }}  --cacert={{ ca_path }} snapshot save {{ snapshot_dir }}etcd-snapshot-{{ date }}.db
 snapshot_status_code=$?
 
 if [ $snapshot_status_code == 0 ] 
