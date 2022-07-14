@@ -1,0 +1,5 @@
+---
+cert_path: /etc/etcd/ssl/peer.crt
+key_path: /etc/etcd/ssl/peer.key
+ca_path: /etc/etcd/ssl/ca.crt
+snapshot_dir: /var/lib/etcd/backup/snapshots/
