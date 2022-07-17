@@ -1,12 +1,12 @@
 ---
-- hosts: lbs
+- hosts: masters
+- hosts: etcd
+- hosts: lb
   gather_facts: true
   become: true
   pre_tasks:
-  - include_role:
-      name: prepare-host
-      tasks_from: arvan-mirror
   roles:
+    - role: prepare-host
     - role: zsh-installation
     - role: lb
 

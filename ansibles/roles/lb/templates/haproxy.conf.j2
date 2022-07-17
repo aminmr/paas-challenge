@@ -33,25 +33,34 @@ defaults
 	errorfile 503 /etc/haproxy/errors/503.http
 	errorfile 504 /etc/haproxy/errors/504.http
 
-
-frontend stats
-    bind *:70
-    stats enable
-    stats uri /monitor
-    stats refresh 10s
-    stats admin if TRUE
-    stats auth admin:4mHBsNXc
-
-
-
 frontend kubernetes-frontend
-    bind 0.0.0.0:26443
+    bind 0.0.0.0:{{ kubernetes_api_port }}
     mode tcp
     option tcplog
     default_backend kubernetes-backend
 
-{% if inventory_hostname in groups['lbs']  %}
-frontend kubernetes_ingress_https_frontend
-        bind    0.0.0.0:443
-        default_backend kubernetes_ingress_https_backend
+
+backend kubernetes-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+{% for master in groups['masters'] %}
+    server master-{{ loop.index0 }} {{ hostvars[master]['ansible_eth0']['ipv4']['address'] }}:{{ kubernetes_api_port }} check fall 3 rise 2
+{% endfor %}
+
+
+frontend etcd-frontend
+    bind 0.0.0.0:{{ etcd_port }}
+    mode tcp
+    option tcplog
+    default_backend etcd-backend
+  
+backend etcd-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+{% for etcd in groups['etcd'] %}
+    server etcd-{{ loop.index0 }} {{ hostvars[etcd]['ansible_eth0']['ipv4']['address'] }}:{{ etcd_port }} check fall 3 rise 2
+{% endfor %}
+
 

@@ -1,14 +1,19 @@
 keepalived_instances:
-  gw1:
-    name: gw1
-    interface: eth1
+  lb-1:
+    name: lb-1
+    interface: eth0
     state: MASTER
     priority: 100
-  gw2:
-    name: gw2
-    interface: eth1
+  lb-2:
+    name: lb-2
+    interface: eth0
     state: BACKUP
     priority: 50
 
-virtual_ip: 192.168.1.50
-keepalived_password: password@123
+virtual_ip: 192.168.0.220
+keepalived_password: 1422
+
+
+### Haproxy variables
+kubernetes_api_port: 6443
+etcd_port: 2379
