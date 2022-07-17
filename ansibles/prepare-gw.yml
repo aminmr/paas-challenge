@@ -1,0 +1,12 @@
+---
+- hosts: lbs
+  gather_facts: true
+  become: true
+  pre_tasks:
+  - include_role:
+      name: prepare-host
+      tasks_from: arvan-mirror
+  roles:
+    - role: zsh-installation
+    - role: lb
+
