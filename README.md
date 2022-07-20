@@ -14,7 +14,9 @@
 
 ### Diagram
 
-![image-20220707185025194](./pictures/diagram-paas.jpg)
+<p align="center">
+  <img src="./pictures/diagram-paas.jpg">
+</p>
 
 **Note:** The etcd servers are connected to the masters api and there is no loadbalancing via the LBs.
 
