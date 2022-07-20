@@ -292,6 +292,38 @@ chmod 700 get_helm.sh
 
 ### Mariadb-replication
 
+For mariadb-replication I prefer to use the [`bitnami mariadb Helm chart`](https://github.com/bitnami/charts/tree/master/bitnami/mariadb).
+
+#### Implementation
+
+1. Add the helm chart to your repo:
+
+   ```shell
+   helm repo add bitnami https://charts.bitnami.com/bitnami
+   ```
+
+2. You need to first extract the `vaules.yml` file from the helm chart
+
+   ```
+   helm show values bitnami/mariadb > values.yml
+   ```
+
+3. Edit the `values.yml` and install the helm:
+
+   Things need to set:
+
+   - StorageClass
+   - PVC capacity
+   - ...
+
+   ```shell
+    helm install RELEASE_NAME bitnami/mariadb -f values.yml --set rootUser.password=<password> --set replication.password=<password>
+   ```
+
+After that check the pods ans statefulset
+
+There is an example [values.yml](./values.yml) in this repo.
+
 ### Upgrade the Cluster
 
 ## Challenges
