@@ -7,8 +7,8 @@ snapshot_dir: /var/lib/etcd/backup/snapshots/
 
 
 ### S3 credentials
-s3_endpoint: https://s3.ir-thr-at1.arvanstorage.com
-s3_access_key: 252b39bd-71d9-472a-8218-f051cb58f21e
-s3_secret_key: 7e76018f7a683072478a34338b92eb7f718e4458e2ca3eb0367450911576be9b
-s3_bucket_name: amin-testing
+s3_endpoint: <endpoint_url>
+s3_access_key: <access_key>
+s3_secret_key: <secret_key>
+s3_bucket_name: <secret_bucket_name>
 
