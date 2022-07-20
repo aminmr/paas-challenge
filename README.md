@@ -14,7 +14,9 @@
 
 ### Diagram
 
-Here will be the diagram of the architecure of the project
+![image-20220707185025194](./pictures/diagram-paas.jpg)
+
+**Note:** The etcd servers are connected to the masters api and there is no loadbalancing via the LBs.
 
 ## Gateways
 
@@ -26,6 +28,13 @@ The other role of gateways are:
 - Loadbalancing requests from the user to the cluster.
 
 ### Implementation
+
+These gateways has two components:
+
+- Keepalived: To ha the gateways I installed the keepalived and configure for ha the public IP.
+- Haproxy: To loadbalance the client traffic to the ingress. (In our scenario we had not implement any ingress. We talk about the production.)
+
+You can deploy the gateways via the [`lb`](./ansibles/roles/lb) roles in ansible folder.
 
 ## etcd
 
@@ -41,7 +50,9 @@ The cluster has been initialized with three nodes and TLS authentication. All ce
 
 ### Implementation
 
+The etcd has been implemented via the systemd service and etcd binary files from offical repo.
 
+This process has been automated with the TLS authentication and you can use it by the [`etcd-implementation`](./ansibles/roles/etcd-implementation)
 
 ### etcd disaster recovery
 
@@ -218,9 +229,70 @@ systemctl start etcd.service
 
 #### Automation
 
+Unfrotunately, This process hadn't been automated.
+
 ## K8S cluster
 
 ### Implementation
+
+This cluster has 3 masters and 1 workers. For loadbalancing masters, I used the haproxy. The cluster has been initialized via `kubeadm`.
+
+This process has been automated via the following roles:
+
+- [kubernetes-prerequsites](./ansibles/roles/kubernetes-prerequsites/)
+- [kubernetes-initialize](./ansibles/roles/kubernetes-initialize)
+- [kubernetes-master-join](./ansibles/roles/master-join)
+- [kubernetes-worker-join](./ansibles/roles/worker-join)
+
+### Storage
+
+My first choice to implement the storageClaas and the local-path provisioner was the [kubernetes local-static-provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) which due to the errors I got from the persistentVolume in Mariadb-replication I changed the component to [rancher local-path-provisioner](https://github.com/rancher/local-path-provisioner).
+
+#### Implementation
+
+```shell
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.22/deploy/local-path-storage.yaml
+```
+
+And testing:
+
+```shell
+kubectl create -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/examples/pvc/pvc.yaml
+kubectl create -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/examples/pod/pod.yaml
+```
+
+For specific configuration you can edit the Configmap in `local-path-storage` namespace ‍‍‍‍ ‍called `local-path-config` and change the config.json parameters:
+
+```yaml
+data:
+  config.json: |-
+    {
+            "nodePathMap":[
+            {
+                    "node":"DEFAULT_PATH_FOR_NON_LISTED_NODES",
+                    "paths":["/opt/local-path-provisioner"]
+            },
+            {
+                    "node":"k8s-worker-1",
+                    "paths":["/disks"]
+            }
+            ]
+    }
+```
+
+### Helm
+
+Installing helm chart can be done by the helm scripts:
+
+```shell
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+```
+
+### Mariadb-replication
+
+### Upgrade the Cluster
 
 ## Challenges
 
