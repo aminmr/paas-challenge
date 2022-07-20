@@ -326,6 +326,39 @@ There is an example [values.yml](./values.yml) in this repo.
 
 ### Upgrade the Cluster
 
+The upgrade process is one the most tricky process in k8s. You have to pay caution and follow the best practices and steps.
+
+#### First Master
+
+1. Install the kubeadm on the first master: (The selected version)
+2. check the `kubeadm upgrade plan` and if there is no manual installation needed continue the steps.
+3. Check the `kubeadm upgrade` in dry-run command and check the result.
+4. run the `kubeadm upgrade apply -f {{kubernetes_version}}
+5. Install the new kubelet package and restart the kubelet
+6. Install the new kubectl package
+
+#### Other masters
+
+1. Install the kubeadm on the first master: (The selected version)
+2. run the `kubeadm upgrade node`
+3. Install the new kubelet package and restart the kubelet
+4. Install the new kubectl package
+
+#### Workers
+
+1. Drain the worker node
+2. Install the kubeadm on the first master: (The selected version)
+3. run the `kubeadm upgrade node`
+4. Install the new kubelet package and restart the kubelet
+5. Install the new kubectl package
+6. Uncordon the node
+
+This process has been automated and you can use the following roles:
+
+- [kubernetes-upgrade](./ansibles/roles/kubernetes-upgrade)
+- [kubernetes-upgrade-masters](./ansibles/roles/kubernetes-upgrade-masters)
+- [kubernetes-upgrade-workers](./ansibles/roles/kubernetes-upgrade-workers)
+
 ## Challenges
 
 ### Gateways
@@ -355,6 +388,4 @@ After many research and tests I figured out the problems:
 - **Hostname is SAN:** There is a section in csr which you can specify the hostname and IPs. I just used the IP variable.
 
 Thanks to [this](https://medium.com/nirman-tech-blog/setting-up-etcd-cluster-with-tls-authentication-enabled-49c44e4151bb) article which helps me a lot to troubleshoot.
-
-## Refreneces
 
