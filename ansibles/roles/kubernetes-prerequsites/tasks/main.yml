@@ -1,0 +1,151 @@
+---
+### Install containerd, runc and cni-plugin ###
+- name: "Download the tarball into the /tmp directory"
+  get_url:
+    url: "{{ containerd_download_url }}"
+    dest: /tmp/containerd.tar.gz
+    owner: root
+    group: root
+    mode: 0700
+
+
+- name: install the containerd
+  unarchive:
+    src: /tmp/containerd.tar.gz
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: 0700
+    extra_opts:
+      - --strip-components=1
+    remote_src: True
+
+- name: copy the containerd unit file
+  template:
+    src: templates/containerd.service.j2
+    dest: /etc/systemd/system/containerd.service
+    owner: root
+    group: root
+    mode: 0700
+
+- name: Reload the daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Enable the containerd service
+  systemd:
+    name: containerd
+    enabled: yes
+    state: restarted
+    masked: no
+
+- name: Download the runc
+  get_url:
+    url: "{{ runc_download_url }}"
+    dest: /usr/local/sbin/runc
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Download the cni-plugin
+  get_url:
+    url: "{{ cni_plugin_download_url }}"
+    dest: /tmp/cni-plugin.tgz
+    owner: root
+    group: root
+    mode: 0700
+
+- name: create the cni directory
+  file:
+    path: /opt/cni/bin
+    state: directory
+    mode: 0755
+
+- name: install the cni-plugin
+  unarchive:
+    src: /tmp/cni-plugin.tgz
+    dest: /opt/cni/bin
+    owner: root
+    group: root
+    mode: 0700
+    extra_opts:
+      - --strip-components=1
+    remote_src: True
+
+- name: install APT Transport HTTPS
+  apt:
+    name: apt-transport-https
+    state: present
+ 
+- name: add Kubernetes apt-key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    validate_certs: false
+    state: present
+
+- name: add Kubernetes' APT repository
+  apt_repository:
+   repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+   state: present
+   filename: 'kubernetes'
+
+- name: install kubelet
+  apt:
+    name: "kubelet={{ kubeadm_version }}"
+    state: present
+    update_cache: true
+
+- name: install kubeadm
+  apt:
+    name: "kubeadm={{ kubeadm_version }}"
+    state: present
+
+- name: install kubectl
+  apt:
+    name: "kubectl={{ kubeadm_version }}"
+    state: present
+    allow_downgrade: yes
+
+- name: Verify if br_netfilter module exists
+  shell: "modinfo br_netfilter"
+  register: modinfo_br_netfilter
+  failed_when: modinfo_br_netfilter.rc not in [0, 1]
+  changed_when: false
+
+- name: Enable br_netfilter module
+  modprobe:
+    name: br_netfilter
+    state: present
+  when: modinfo_br_netfilter.rc == 0
+
+- name: Persist br_netfilter module
+  copy:
+    dest: /etc/modules-load.d/kubernetes-br_netfilter.conf
+    content: br_netfilter
+  when: modinfo_br_netfilter.rc == 0
+
+# kube-proxy needs net.bridge.bridge-nf-call-iptables enabled when found if br_netfilter is not a module
+- name: Check if bridge-nf-call-iptables key exists
+  command: "sysctl net.bridge.bridge-nf-call-iptables"
+  failed_when: false
+  changed_when: false
+  register: sysctl_bridge_nf_call_iptables
+
+- name: Enable bridge-nf-call tables
+  sysctl:
+    name: "{{ item }}"
+    state: present
+    value: 1
+    reload: yes
+  when: modinfo_br_netfilter.rc == 1 and sysctl_bridge_nf_call_iptables.rc == 0
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-arptables
+    - net.bridge.bridge-nf-call-ip6tables
+
+- name:
+  sysctl:
+    name: net.ipv4.ip_forward
+    state: present
+    value: 1
+    reload: yes

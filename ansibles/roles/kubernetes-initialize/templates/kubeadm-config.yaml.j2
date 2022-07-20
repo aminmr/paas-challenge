@@ -1,0 +1,19 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: {{ kubeadm_version }}
+controlPlaneEndpoint: "{{ loadbalancer_dns }}:{{ loadbalancer_port }}" # change this (see below)
+etcd:
+  external:
+    endpoints:
+{% for etcd in groups['etcd'] %}
+      - https://{{ hostvars[etcd]['ansible_eth0']['ipv4']['address'] }}:2379 # change ETCD_0_IP appropriately
+{% endfor %}
+    caFile: /etc//etcd/ssl/ca.crt
+    certFile: /etc/etcd/ssl/peer.crt
+    keyFile: /etc/etcd/ssl/peer.key
+networking:
+  podSubnet: "{{ pod_subnet }}"
+apiServerExtraArgs:
+  apiserver-count: "{{ groups['masters'] | length }}"
+

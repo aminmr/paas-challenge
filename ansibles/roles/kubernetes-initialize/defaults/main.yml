@@ -1,0 +1,6 @@
+loadbalancer_dns: lb.aminmr.ir
+loadbalancer_port: 6443
+pod_subnet: 10.244.0.0/16
+cni_type: calico
+kubeadm_version: 1.20.2
+calico_version: 3.17

@@ -1,0 +1,20 @@
+---
+- name: install flannel
+  become: yes
+  become_user: ubuntu
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml >> flannel_setup.txt
+  args:
+    chdir: $HOME
+    creates: flannel_setup.txt
+  when: cni_type == "flannel"
+
+
+- name: install calico
+  become: yes
+  become_user: ubuntu
+  shell: "kubectl create -f https://projectcalico.docs.tigera.io/{{ calcio_version }}manifests/calico.yaml >> calico_setup.txt"
+  args:
+    chdir: $HOME
+    creates: calico_setup.txt
+  when: cni_type == "calico"
+

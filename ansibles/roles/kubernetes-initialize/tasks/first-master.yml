@@ -1,0 +1,90 @@
+---
+
+- name: create the ssl directory for etcd
+  file:
+    path: /etc/etcd/ssl
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: copy the etcd.crt to the first master node
+  copy:
+    src: /home/ubuntu/artifacts/etcd-1-peer.crt
+    dest: /etc/etcd/ssl/peer.crt
+    owner: root
+    mode: 0640
+
+- name: copy the etcd.key to the first master node
+  copy:
+    src: /home/ubuntu/artifacts/etcd-1-peer.key
+    dest: /etc/etcd/ssl/peer.key
+    owner: root
+    mode: 0600
+
+
+- name: copy the etcd CA to the first master node
+  copy:
+    src: /home/ubuntu/artifacts/ca.crt
+    dest: /etc/etcd/ssl/ca.crt
+    owner: root
+    mode: 0600
+
+
+- name: copy the etcd-config-file to the master
+  template:
+    src: templates/kubeadm-config.yaml.j2
+    dest: /tmp/kubeadm-config.yaml
+
+- name: initialize the cluster
+  shell: kubeadm init --config /tmp/kubeadm-config.yaml >> cluster_initialized.txt
+  args:
+   chdir: $HOME
+   creates: cluster_initialized.txt
+
+- name: create .kube directory
+  become: yes
+  become_user: ubuntu
+  file:
+   path: $HOME/.kube
+   state: directory
+   mode: 0755
+
+- name: copy admin.conf to user's kube config
+  copy:
+   src: /etc/kubernetes/admin.conf
+   dest: /home/ubuntu/.kube/config
+   remote_src: yes
+   owner: ubuntu
+
+- name: Fetching Kubernetes Master PKI files from primary master
+  fetch:
+    src: /etc/kubernetes/pki/{{item}}
+    dest: /tmp/kubeadm-ha/pki/{{item}}
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+    - sa.key
+    - sa.pub
+    - front-proxy-ca.crt 
+    - front-proxy-ca.key
+
+
+- name: "Fetching Kubernetes Master ETCD files from primary master"
+  fetch:
+    src: /etc/etcd/ssl/{{item}}
+    dest: /tmp/etcd/ssl/{{item}}
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+
+
+- name: Fetching Kubernetes Master Admin files from primary master
+  fetch:
+    src: /etc/kubernetes/{{item}}
+    dest: /tmp/kubeadm-ha/{{item}}
+    flat: yes
+  with_items:
+    - admin.conf 
