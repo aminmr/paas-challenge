@@ -1,0 +1,6 @@
+- name: Upgrade workers sequentially
+  include_tasks: "upgrade-worker.yml"
+  with_items: "{{ groups['workers'] }}"
+  when: "hostvars[host_item].inventory_hostname == inventory_hostname"
+  loop_control:
+      loop_var: host_item

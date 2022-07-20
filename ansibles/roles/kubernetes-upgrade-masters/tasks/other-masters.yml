@@ -1,0 +1,36 @@
+---
+- name: install kubeadm
+  apt:
+    name: "kubeadm={{ kubeadm_version }}"
+    state: present
+    update_cache: true
+
+- name: "Kubeadm upgrade node"
+  shell: kubeadm upgrade node
+  register: rslt
+
+- name:
+  debug:
+    var: rslt
+
+- pause:
+    prompt: "Proceed with kubelet upgrade and restart"
+
+- name: install kubelet
+  apt:
+    name: "kubelet={{ kubeadm_version }}"
+    state: present
+    update_cache: true
+
+- name: Restart kubelet
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: kubelet
+    enabled: yes
+
+- name: install kubectl
+  apt:
+    name: "kubectl={{ kubeadm_version }}"
+    state: present
+    update_cache: true

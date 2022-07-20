@@ -1,0 +1,9 @@
+- hosts: master-1
+  become: yes
+  become_user: root
+  roles:
+  - role: kubernetes-upgrade
+
+    #  environment:
+    #    http_proxy: http://vpn.aminmr.ir:3128
+    #    https_proxy: http://vpn.aminmr.ir:3128

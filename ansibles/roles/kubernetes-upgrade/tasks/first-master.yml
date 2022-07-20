@@ -1,0 +1,81 @@
+---
+#- name: install APT Transport HTTPS
+#  apt:
+#    name: apt-transport-https
+#    state: present
+#
+#- name: add Kubernetes apt-key
+#  apt_key:
+#    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+#    validate_certs: false
+#    state: present
+#
+#- name: add Kubernetes' APT repository
+#  apt_repository:
+#   repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+#   state: present
+#   filename: 'kubernetes'
+
+- name: install kubeadm
+  apt:
+    name: "kubeadm={{ kubeadm_version }}"
+    state: present
+    update_cache: true
+
+      #- name: "Update kubeadm config yaml"
+      #  copy:
+      #    content: "{{ kubeadm_config_options | to_nice_yaml }}"
+      #    dest: /tmp/kubeadm-config.yaml
+      #    mode: 0644
+
+- name: "Kubeadm upgrade plan"
+  shell: kubeadm upgrade plan
+  register: rslt
+
+- name:
+  debug:
+    var: rslt
+
+- pause:
+    prompt: "Validate plan"
+
+- name: "Kubeadm upgrade dry-run"
+  shell: kubeadm upgrade apply {{kubernetes_version}}  --dry-run
+  register: rslt
+
+- name:
+  debug:
+    var: rslt
+
+- pause:
+    prompt: "Validate dry-run"
+
+- name: "Kubeadm upgrade"
+  shell: kubeadm upgrade apply -f  {{kubernetes_version}} 
+  register: rslt
+
+- name:
+  debug:
+    var: rslt
+
+- pause:
+    prompt: "Proceed with kubelet upgrade and restart"
+
+- name: install kubelet
+  apt:
+    name: "kubelet={{ kubeadm_version }}"
+    state: present
+    update_cache: true
+
+- name: Restart kubelet
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: kubelet
+    enabled: yes
+
+- name: install kubectl
+  apt:
+    name: "kubectl={{ kubeadm_version }}"
+    state: present
+    update_cache: true

@@ -1,0 +1,4 @@
+- name: Upgrade the other master node
+  ansible.builtin.include_tasks: other-masters.yml
+
+
