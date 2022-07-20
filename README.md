@@ -389,3 +389,102 @@ After many research and tests I figured out the problems:
 
 Thanks to [this](https://medium.com/nirman-tech-blog/setting-up-etcd-cluster-with-tls-authentication-enabled-49c44e4151bb) article which helps me a lot to troubleshoot.
 
+### Containerd
+
+For pulling images, because of sanctions we need to use proxy. It can be used proxy in the containerd service as an environment:
+
+```shell
+[Unit]
+Description=containerd container runtime
+Documentation=https://containerd.io
+After=network.target local-fs.target
+
+[Service]
+ExecStartPre=-/sbin/modprobe overlay
+ExecStart=/usr/local/bin/containerd
+
+Type=notify
+Delegate=yes
+KillMode=process
+Restart=always
+RestartSec=5
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNPROC=infinity
+LimitCORE=infinity
+LimitNOFILE=infinity
+# Comment TasksMax if your systemd version does not supports it.
+# Only systemd 226 and above support this version.
+TasksMax=infinity
+OOMScoreAdjust=-999
+Environment="HTTP_PROXY=http://<proxy_ip:<port>/"
+Environment="HTTPS_PROXY=http://<proxy_ip:<port>/"
+```
+
+But this environment set proxy for the whole cluster! So I got errors while I deployed the calico and the calico node can't communicate to the other components.
+
+So I solved this problem by adding `NO_PROXY`:
+
+```SHELL
+[Unit]
+Description=containerd container runtime
+Documentation=https://containerd.io
+After=network.target local-fs.target
+
+[Service]
+ExecStartPre=-/sbin/modprobe overlay
+ExecStart=/usr/local/bin/containerd
+
+Type=notify
+Delegate=yes
+KillMode=process
+Restart=always
+RestartSec=5
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNPROC=infinity
+LimitCORE=infinity
+LimitNOFILE=infinity
+# Comment TasksMax if your systemd version does not supports it.
+# Only systemd 226 and above support this version.
+TasksMax=infinity
+OOMScoreAdjust=-999
+Environment="HTTP_PROXY=http://<proxy_ip:<port>/"
+Environment="HTTPS_PROXY=http://<proxy_ip:<port>/"
+Environment="NO_PROXY=localhost,127.0.0.1,10.244.0.0/16,192.168.0.0/24,10.96.0.1/32"
+```
+
+**Note:** The `10.96.0.1` was the IP calico couldn't connect to it.
+
+### Storage
+
+I deployed the kubernetes local-storage provisioner and everything was fine. I added 10 GB disk to the worker node and the provisioner has detected the disk automatically and create a new 10 GB PV.
+
+I tried to deploy very simple nginx with PVC but the the pod stuck on the `pending` state because there is no persistent volume availabe on every node.
+
+At last I understood that the problem was about the capacity of PV which was 1110Mi and not 10Gi!
+
+### Upgrade k8s
+
+After upgrading the first master and everything goes fine, some pod didn't deleted and cluster takes some minutes to delete these pods and pulling the new images.
+
+## Questions
+
+- Is TLS needed for the etcd? Is it best practice?
+- Is needed to drain master nodes for upgrading?
+
+## To do list
+
+- Monitoring
+
+- Auto etcd backup
+
+- Auto etcd disaster recovery
+
+- Install StorageClaas / provisioner / Helm via ansible
+
+- Password Clear-text ansible files(Using vault)
+
+- Comments in playbooks and doc for roles
+
+  
