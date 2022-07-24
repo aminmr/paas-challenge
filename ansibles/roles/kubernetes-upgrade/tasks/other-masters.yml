@@ -6,7 +6,7 @@
     update_cache: true
 
 - name: "Kubeadm upgrade node"
-  shell: kubeadm upgrade ndoe {{ansible_hostname}} 
+  shell: kubeadm upgrade node
   register: rslt
 
 - name:
@@ -34,3 +34,6 @@
     name: "kubectl={{ kubeadm_version }}"
     state: present
     update_cache: true
+
+- pause:
+    prompt: "proceed to next?"

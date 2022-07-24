@@ -1,0 +1,28 @@
+- hosts: master-1
+  become: yes
+  become_user: root
+  tasks:
+
+  - include_role:
+      name: kubernetes-upgrade
+      tasks_from: first-master
+
+- hosts: masters:!master-1
+  serial: 1
+  become: yes
+  become_user: root
+  tasks:
+
+  - include_role:
+      name: kubernetes-upgrade
+      tasks_from: other-masters
+
+
+- hosts: workers
+  serial: 1
+  become: 1
+  become_user: root
+  roles:
+    - role: kubernetes-upgrade-workers
+
+

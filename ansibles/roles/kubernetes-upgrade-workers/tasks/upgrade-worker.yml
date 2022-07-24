@@ -43,3 +43,7 @@
 - name: Uncordon the worker node
   shell: kubectl uncordon {{ansible_hostname}} --ignore-daemonsets
   delegate_to: "{{groups['masters'][0]}}"
+
+- pause:
+    prompt: "Proceed to the next?"
+

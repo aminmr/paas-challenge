@@ -1,4 +1,6 @@
 - name: Upgrade the first master node
-  ansible.builtin.include_tasks: first-master.yml
+  include_tasks: first-master.yml
 
+- name: Upgrade other masters sequentially
+  include_tasks: other-masters.yml
 

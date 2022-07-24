@@ -79,3 +79,6 @@
     name: "kubectl={{ kubeadm_version }}"
     state: present
     update_cache: true
+
+- pause:
+    prompt: "Proceed to the next?"
